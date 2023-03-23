@@ -1,98 +1,69 @@
-var form=document.getElementById('form');
-var list=document.getElementById('list');
-var item=document.getElementById('item');
-var description=document.getElementById('description');
-var price=document.getElementById('price');
-var quantity=document.getElementById('quantity');
-form.addEventListener('submit',local)
+var list=document.getElementById("list");
+var form=document.getElementById("form");
+var a=document.getElementById("1");
+var b=document.getElementById("2");
+var c=document.getElementById("3");
+var y=document.getElementById("all");
+
+form.addEventListener("submit",local);
 function local(e){
     e.preventDefault();
-    var item=e.target.item.value;
-    var description=e.target.description.value;
-    var price=e.target.price.value;
-    var quantity=e.target.quantity.value;
-   let obj={
-     item,
-     description,
-     price,
-     quantity
-   };
-   axios.post('http://localhost:3000/add-item',obj)
-   .then((res)=>{
-    console.log(res)
-    onsubmit(res.data.newItemDetail);
-   })
-   .catch((err)=>{
-    document.body.innerHTML=document.body.innerHTML+`<h4>Something went wrong</h4>`
+ var price=document.getElementById("price").value;
+var dish=document.getElementById("dish").value;
+var tables=document.getElementById("tables").value;
+    var obj={
+        price,
+        dish,
+        tables
+    };
+axios.post('http://localhost:3000/add-item',obj)
+.then((res)=>{
+    console.log(res.data.newItemDetail)
+    add(res.data.newItemDetail);
 })
+.catch((err)=>console.log(err));
 }
-
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("DOMContentLoaded",()=>{
     axios.get('http://localhost:3000/get-item')
-        .then((res)=>{
-            for(var i=0;i<res.data.newItemDetail.length;i++){
-                onsubmit(res.data.newItemDetail[i]);
-            }
-            console.log(res)
-        })
-        .catch((err)=>console.log(err));
+    .then((res)=>{
+        for(var i=0;i<res.data.newItemDetail.length;i++){
+            add(res.data.newItemDetail[i]);
+        }
+    })
+    .catch((err)=>console.log(err))
+})
+function add(user){
 
-     })
+    var li=document.createElement('li')
+    var p=document.createTextNode(`${user.price}-${user.dish}-${user.tables}   `);
+    li.id=user.id;
+    li.appendChild(p);
+    var btn=document.createElement("button")
+    btn.setAttribute("onclick","del('"+user.id+"')");
+    btn.appendChild(document.createTextNode("Delete Order"));
+    li.appendChild(btn);
+    if(user.tables=="Table 1")
+    {
+        y.insertBefore(li,b);
+    }
+    else if(user.tables=="Table 2")
+    {
+        y.insertBefore(li,c)
+    }
+    else{
+        y.appendChild(li);
+    }
 
-function onsubmit(item){
-    var btn1=document.createElement('button');
-    btn1.appendChild(document.createTextNode('Buy 1'));
-    var btn2=document.createElement('button');
-    btn2.appendChild(document.createTextNode('Buy 2'));
-    var btn3=document.createElement('button');
-    btn3.appendChild(document.createTextNode('Buy 3'));
-    btn1.setAttribute('onclick',"buy1('"+item.id+"','"+item.item+"','"+item.description+"','"+item.price+"','"+item.quantity+"')");
-    btn2.setAttribute('onclick',"buy2('"+item.id+"','"+item.item+"','"+item.description+"','"+item.price+"','"+item.quantity+"')");
-    btn3.setAttribute('onclick',"buy3('"+item.id+"','"+item.item+"','"+item.description+"','"+item.price+"','"+item.quantity+"')");
-    var li=document.createElement('li');
-    li.id=item.id;
-    li.appendChild(document.createTextNode(`Item Name:${item.item},Description:${item.description},Price:${item.price},Quantity:${item.quantity}`));
-    li.appendChild(btn1);
-    li.appendChild(btn2);
-    li.appendChild(btn3);
-    list.appendChild(li);
 }
-function buy1(id,item,desc,price,quan){
-    console.log(id);
-    const newQuantity=quan-1;
-    const newitem={
-    item:item,
-     description:desc,
-     price:price,
-     quantity:newQuantity
-    }
-    axios.post(`http://localhost:3000/edit-item/${id}`,newitem).then(res=>{
-        onsubmit(res.data.newItemDetail);
-    })
-}
-function buy2(id,item,desc,price,quan){
-    console.log(id);
-    const newQuantity=quan-2;
-    const newitem={
-    item:item,
-     description:desc,
-     price:price,
-     quantity:newQuantity
-    }
-    axios.post(`http://localhost:3000/edit-item/${id}`,newitem).then(res=>{
-        onsubmit(res.data.newItemDetail);
-    })
-}
-function buy3(id,item,desc,price,quan){
-    console.log(id);
-    const newQuantity=quan-3;
-    const newitem={
-    item:item,
-     description:desc,
-     price:price,
-     quantity:newQuantity
-    }
-    axios.post(`http://localhost:3000/edit-item/${id}`,newitem).then(res=>{
-        onsubmit(res.data.newItemDetail);
-    })
+
+//console.log(y)
+function del(userId){ 
+    console.log(userId)
+    axios.delete(`http://localhost:3000/delete-item/${userId}`) 
+   .then((response)=>{
+    const x=document.getElementById(userId);
+    console.log(y)
+    y.removeChild(x);
+   })
+   .catch((err)=>console.log(err));
 }
